@@ -19,3 +19,5 @@ Imports:
     R6
 Suggests: 
     testthat
+URL: https://github.com/tomicapretto/latex2r
+BugReports: https://github.com/tomicapretto/latex2r/issues
