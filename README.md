@@ -5,8 +5,7 @@
 
 The goal of latex2r is to translate latex formulas to R code.
 
-THE PACKAGE IS UNDER VERY EARLY DEVELOPMENT.  
-DO NOT USE IF YOU DON’T WANT TO SHOOT YOUR FOOT.
+THE PACKAGE IS UNDER VERY EARLY DEVELOPMENT, DO NOT USE\!
 
 ## Installation
 
