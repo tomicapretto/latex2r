@@ -16,23 +16,33 @@ Scanner = R6::R6Class("Scanner",
       "Upsilon", "Omega", "Theta", "Pi", "Phi"
     )),
 
+    # TODO: Try to parse things like to $e^{x+1}$.
     keywords = list(
-      '\\frac' = 'FRAC',
+      '\\frac' = 'FRAC', # TODO: Add \div operator, which is like a regular binary.
       '\\sqrt' = 'SQRT',
+      '\\log' = 'LOG',
       '\\cdot' = 'STAR',
       '\\times' = 'STAR',
+      '\\ast' = 'STAR', # Not sure if this one should be kept.
       '\\sin' = 'SIN',
       '\\cos' = 'COS',
-      '\\tan' = 'TAN'
+      '\\tan' = 'TAN',
+      '\\sinh' = 'SINH',
+      '\\cosh' = 'COSH',
+      '\\tanh' = 'TANH'
     ),
 
     keywords_lexemes = list(
+      'STAR' = '*',
       'FRAC' = '/',
       'SQRT' = 'sqrt',
-      'STAR' = '*',
+      'LOG' = 'log',
       'SIN' = 'sin',
       'COS' = 'cos',
-      'TAN' = 'tan'
+      'TAN' = 'tan',
+      'SINH' = 'sinh',
+      'COSH' = 'cosh',
+      'TANH' = 'tanh'
     ),
 
     initialize = function(source = NULL) {

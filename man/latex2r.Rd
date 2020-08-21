@@ -15,10 +15,9 @@ latex2r(x, interactive = FALSE)
 string
 }
 \description{
-Take a string with a LaTeX formula and attempts to find an
-equivalent representation in R. If \code{interactive=TRUE} it pops up an
-interactive REPL that does the same, but interactively.
+Take a LaTeX formula and attempts to find an equivalent representation in R.
+If \code{interactive=TRUE} it pops up an interactive REPL that does the same, but interactively.
 }
 \examples{
-latex2r("\\\\beta_1^{\\\\frac{x+1}{x^2}}")
+latex2r("\\\\beta_1^{\\\\frac{x+1}{x^2 \\\\cdot y}}")
 }

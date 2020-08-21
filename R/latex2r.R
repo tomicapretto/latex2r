@@ -1,8 +1,7 @@
 #' Translate LaTeX formula to R code.
 #'
-#' Take a string with a LaTeX formula and attempts to find an
-#' equivalent representation in R. If `interactive=TRUE` it pops up an
-#' interactive REPL that does the same, but interactively.
+#' Take a LaTeX formula and attempts to find an equivalent representation in R.
+#' If `interactive=TRUE` it pops up an interactive REPL that does the same, but interactively.
 #'
 #' @param x string
 #' @param interactive boolean

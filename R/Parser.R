@@ -1,10 +1,12 @@
-# Like the scanner, it consumes a sequence, only now
-# we're working at the level of entire tokens.
+# Like the scanner, it consumes a sequence.
+# However, now we're working at the level of entire tokens.
+
 Parser = R6::R6Class("Parser",
   inherit = Reina,
   public = list(
     tokens = list(),
     current = 1,
+    unary_latex_fns = c('SQRT', 'LOG', 'SIN', 'COS', 'TAN', 'SINH', 'COSH', 'TANH'),
 
     initialize = function(tokens) {
       self$tokens = tokens
@@ -17,6 +19,10 @@ Parser = R6::R6Class("Parser",
       parse_error = function(cnd) {
         super$shared_env$had_error = TRUE
         super$error(self$peek(), cnd$message)
+      },
+      error = function(cnd) {
+        super$shared_env$had_error = TRUE
+        super$error(self$peek(), paste("Unexpected error when parsing", cnd$message))
       })
     },
 
@@ -31,18 +37,18 @@ Parser = R6::R6Class("Parser",
       }
     },
 
-    # Devuelve el token que estamos por consumir
+    # Returns the token we are about to consume
     peek = function() {
       self$tokens[[self$current]]
     },
 
-    # Devuelve el ultimo token consumido
+    # Returns the last token consumed
     previous = function() {
       self$tokens[[self$current - 1]]
     },
 
     check = function(types) {
-      # Supports multiple check
+      # Supports multiple check (it uses `%in%`` and not `==`)
       if (self$is_at_end()) return(FALSE)
       self$peek()$type %in% types
     },
@@ -55,20 +61,20 @@ Parser = R6::R6Class("Parser",
       return(FALSE)
     },
 
-    # Este metodo se parece a `check()` en que chequea si el siguiente token
-    # es del tipo esperado. Si es asi, lo consume y todo va bien.
-    # Caso contrario, nos hemos encontramos con un error.
-    # En ese caso, lo reportamos llamando a `ParseError()`.
+    # `consume()` checks the next token if of the expected type.
+    # If TRUE, `advance()` is called it's all good man.
+    # Otherwise, we've found an error and `error()` is called.
     consume = function(type, message) {
       if (self$check(type)) return(self$advance())
       self$error(message)
     },
 
+    # Throws a custom error class that is appropiately handled.
     error = function(message) {
       stop_custom("parse_error", message)
     },
 
-    # Aca empezamos a caminar por la gramatica
+    # Here we start walking through the grammar.
     expression = function() {
       self$addition()
     },
@@ -138,15 +144,10 @@ Parser = R6::R6Class("Parser",
     },
 
     unary = function() {
-      if (self$match(c('PLUS', 'MINUS', 'SQRT', 'SIN', 'COS', 'TAN'))) {
-        if (self$previous()$type %in% c('SQRT', 'SIN', 'COS', 'TAN')) {
+      if (self$match(c('PLUS', 'MINUS', self$unary_latex_fns))) {
 
-          operator = tolower(self$previous()$type)
-          self$consume('LEFT_BRACE', paste0("Expect '{' after '", operator, "'"))
-          arg = self$expression()
-          self$consume('RIGHT_BRACE', "Expect '}' after expression")
-          return(TexUnary$new(operator, arg))
-
+        if (self$previous()$type %in% self$unary_latex_fns) {
+          return(self$unary_latex())
         } else {
           operator = self$previous()
           right = self$unary()
@@ -156,7 +157,29 @@ Parser = R6::R6Class("Parser",
       return(self$primary())
     },
 
-
+    # This is a helper to represent unary functions that require special care when
+    # translating from LaTeX to R.
+    unary_latex = function() {
+      operator = tolower(self$previous()$type)
+      if (self$check(c('LEFT_BRACE', 'LEFT_PAREN'))) {
+        if (self$peek()$type == 'LEFT_BRACE') {
+          # This first `consume()` is not strictly necessary, `advance()`` would suffice.
+          self$consume('LEFT_BRACE', paste0("Expect '{' after '", operator, "'"))
+          arg = self$expression()
+          self$consume('RIGHT_BRACE', "Expect '}' after expression")
+        } else {
+          self$consume('LEFT_PAREN', paste0("Expect '(' after '", operator, "'"))
+          arg = self$expression()
+          self$consume('RIGHT_PAREN', "Expect ')' after expression")
+        }
+      } else {
+        self$error(
+          paste0("Expect '{' or '(' after '", operator,
+            "' to avoid ambiguity in the function argument.")
+        )
+      }
+      TexUnary$new(operator, arg)
+    },
 
     primary = function() {
       if (self$match(c('NUMBER'))) {
