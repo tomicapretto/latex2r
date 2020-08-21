@@ -7,16 +7,16 @@ Authors@R:
            role = c("aut", "cre"),
            email = "tomicapretto@gmail.com",
            comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: This package has only one objective: translate Latex formulas to R code.
-    It implements a minimal Latex parser that constructs an AST from a Latex formula
-    and then just translates the original AST to R. 
+Description: This package implements a minimal LaTeX parser that is used to translate
+    LaTeX formulas to R code.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.0
 Imports: 
-    R6
+    R6 (>= 2.4.0),
+    purrr (>= 0.3.0)
 Suggests: 
     testthat
 URL: https://github.com/tomicapretto/latex2r
