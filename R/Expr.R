@@ -7,21 +7,6 @@ Expr = R6::R6Class("Expr",
   )
 )
 
-Unary = R6::R6Class("Unary",
-  inherit = Expr,
-  public = list(
-    operator = NULL,
-    right = NULL,
-    initialize = function(operator, right) {
-      self$operator = operator
-      self$right = right
-    },
-    accept = function(visitor) {
-      visitor$visitUnaryExpr(self)
-    }
-  )
-)
-
 Binary = R6::R6Class("Binary",
   inherit = Expr,
   public = list(
@@ -39,7 +24,22 @@ Binary = R6::R6Class("Binary",
   )
 )
 
-TexUnary = R6::R6Class("TexUnary",
+Unary = R6::R6Class("Unary",
+  inherit = Expr,
+  public = list(
+    operator = NULL,
+    right = NULL,
+    initialize = function(operator, right) {
+      self$operator = operator
+      self$right = right
+    },
+    accept = function(visitor) {
+      visitor$visitUnaryExpr(self)
+    }
+  )
+)
+
+UnaryFun = R6::R6Class("UnaryFun",
   inherit = Expr,
   public = list(
     operator = NULL,
@@ -49,10 +49,26 @@ TexUnary = R6::R6Class("TexUnary",
       self$arg = arg
     },
     accept = function(visitor) {
-      visitor$visitTexUnaryExpr(self)
+      visitor$visitUnaryFunExpr(self)
     }
   )
 )
+
+LogFun = R6::R6Class("LogFun",
+  inherit = Expr,
+  public = list(
+    base = NULL,
+    arg = NULL,
+    initialize = function(base, arg) {
+      self$base = base
+      self$arg = arg
+    },
+    accept = function(visitor) {
+      visitor$visitLogFunExpr(self)
+    }
+  )
+)
+
 
 Supsubscript = R6::R6Class("Supsubscript",
   inherit = Expr,
@@ -61,7 +77,9 @@ Supsubscript = R6::R6Class("Supsubscript",
     sub = NULL,
     sup = NULL,
     initialize = function(left, sub, sup) {
-      if (inherits(left, 'Literal') & !is.null(sub)) stop("Literals can't have subscripts")
+      if (inherits(left, 'Literal') & !is.null(sub)) {
+        stop("Literals can't have subscripts")
+      }
       self$left = left
       self$sub = sub
       self$sup = sup

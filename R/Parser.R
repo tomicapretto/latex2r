@@ -1,15 +1,16 @@
 # Like the scanner, it consumes a sequence.
 # However, now we're working at the level of entire tokens.
-
 Parser = R6::R6Class("Parser",
   inherit = Reina,
   public = list(
+
     tokens = list(),
     current = 1,
-    unary_latex_fns = c('SQRT', 'LOG', 'SIN', 'COS', 'TAN', 'SINH', 'COSH', 'TANH'),
+    unary_fns = NULL,
 
     initialize = function(tokens) {
       self$tokens = tokens
+      self$unary_fns = get_pkg_data('UNARY_FNS')
     },
 
     parse = function() {
@@ -144,10 +145,9 @@ Parser = R6::R6Class("Parser",
     },
 
     unary = function() {
-      if (self$match(c('PLUS', 'MINUS', self$unary_latex_fns))) {
-
-        if (self$previous()$type %in% self$unary_latex_fns) {
-          return(self$unary_latex())
+      if (self$match(c('PLUS', 'MINUS', self$unary_fns))) {
+        if (self$previous()$type %in% self$unary_fns) {
+          return(self$unary_fn())
         } else {
           operator = self$previous()
           right = self$unary()
@@ -157,10 +157,9 @@ Parser = R6::R6Class("Parser",
       return(self$primary())
     },
 
-    # This is a helper to represent unary functions that require special care when
-    # translating from LaTeX to R.
-    unary_latex = function() {
-      operator = tolower(self$previous()$type)
+    # This is a helper to represent unary functions that require
+    # special care when translating from LaTeX to R.
+    unary_fn_arg = function() {
       if (self$check(c('LEFT_BRACE', 'LEFT_PAREN'))) {
         if (self$peek()$type == 'LEFT_BRACE') {
           # This first `consume()` is not strictly necessary, `advance()`` would suffice.
@@ -175,15 +174,37 @@ Parser = R6::R6Class("Parser",
       } else {
         self$error(
           paste0("Expect '{' or '(' after '", operator,
-            "' to avoid ambiguity in the function argument.")
+                 "' to avoid ambiguity in the function argument.")
         )
       }
-      TexUnary$new(operator, arg)
+      return(arg)
+    },
+
+    unary_fn = function() {
+      operator = tolower(self$previous()$type)
+      if (operator == 'log' && self$match('UNDERSCORE')) {
+        base = self$primary()
+        if (!inherits(base, 'Literal')) {
+          self$error("Expect a number, and only a number, as the logarithm base.")
+        }
+        arg = self$unary_fn_arg()
+        return(LogFun$new(base, arg))
+      }
+      arg = self$unary_fn_arg()
+      return(UnaryFun$new(operator, arg))
     },
 
     primary = function() {
       if (self$match(c('NUMBER'))) {
         return(Literal$new(self$previous()$literal))
+      }
+
+      if (self$match('PI_NUMBER')) {
+        return(Literal$new('pi'))
+      }
+
+      if (self$match('E_NUMBER')) {
+        return(Literal$new('exp(1)'))
       }
 
       if (self$match(c('IDENTIFIER', 'GREEK_IDENTIFIER'))) {

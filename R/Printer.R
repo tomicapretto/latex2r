@@ -62,15 +62,20 @@ RPrinter = R6::R6Class(
       return(string)
     },
 
-    visitTexUnaryExpr = function(expr) {
-      paste0(expr$operator, "(", expr$arg$accept(self), ")")
+    visitBinaryExpr = function(expr) {
+      self$format(mode = "binary", expr)
     },
+
     visitUnaryExpr = function(expr) {
       self$format(mode = "unary", expr)
     },
 
-    visitBinaryExpr = function(expr) {
-      self$format(mode = "binary", expr)
+    visitUnaryFunExpr = function(expr) {
+      paste0(expr$operator, "(", expr$arg$accept(self), ")")
+    },
+
+    visitLogFunExpr = function(expr) {
+      paste0("log(", expr$arg$accept(self), ", base = ", expr$base$accept(self), ")")
     },
 
     visitSupsubscriptExpr = function(expr) {

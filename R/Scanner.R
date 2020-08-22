@@ -7,47 +7,16 @@ Scanner = R6::R6Class("Scanner",
     start = 1,
     current = 1,
 
-    keywords_g = paste0("\\", c(
-      "alpha", "theta", "tau", "beta", "vartheta", "pi", "upsilon",
-      "gamma", "varpi", "phi", "delta", "kappa", "rho",
-      "varphi", "epsilon", "lambda", "varrho", "chi", "varepsilon",
-      "mu", "sigma", "psi", "zeta", "nu", "varsigma", "omega", "eta",
-      "xi", "Gamma", "Lambda", "Sigma", "Psi", "Delta", "Xi",
-      "Upsilon", "Omega", "Theta", "Pi", "Phi"
-    )),
-
-    # TODO: Try to parse things like to $e^{x+1}$.
-    keywords = list(
-      '\\frac' = 'FRAC', # TODO: Add \div operator, which is like a regular binary.
-      '\\sqrt' = 'SQRT',
-      '\\log' = 'LOG',
-      '\\cdot' = 'STAR',
-      '\\times' = 'STAR',
-      '\\ast' = 'STAR', # Not sure if this one should be kept.
-      '\\sin' = 'SIN',
-      '\\cos' = 'COS',
-      '\\tan' = 'TAN',
-      '\\sinh' = 'SINH',
-      '\\cosh' = 'COSH',
-      '\\tanh' = 'TANH'
-    ),
-
-    keywords_lexemes = list(
-      'STAR' = '*',
-      'FRAC' = '/',
-      'SQRT' = 'sqrt',
-      'LOG' = 'log',
-      'SIN' = 'sin',
-      'COS' = 'cos',
-      'TAN' = 'tan',
-      'SINH' = 'sinh',
-      'COSH' = 'cosh',
-      'TANH' = 'tanh'
-    ),
+    greek_keywords = NULL,
+    keywords = NULL,
+    keywords_lexemes = NULL,
 
     initialize = function(source = NULL) {
       if (!is.null(source)) {
         self$source = source
+        self$greek_keywords = get_pkg_data('GREEK_KEYWORDS')
+        self$keywords = get_pkg_data('KEYWORDS')
+        self$keywords_lexemes = get_pkg_data('KEYWORDS_LEXEMES')
       } else {
         error("scan_error", "Source can't be NULL.")
       }
@@ -90,6 +59,7 @@ Scanner = R6::R6Class("Scanner",
         '*' = self$add_token('STAR'),
         "_" = self$add_token('UNDERSCORE'),
         "^" = self$add_token('CARET'),
+        "e" = self$add_token('E_NUMBER'),
         " " = NULL,
 
         # Comportamiento default
@@ -168,9 +138,13 @@ Scanner = R6::R6Class("Scanner",
         return(NULL)
       }
 
-      if (text %in% self$keywords_g) {
+      if (text %in% self$greek_keywords) {
         # Delete backslashes
         text = gsub("\\\\", "", text)
+        if (text == "pi") {
+          self$add_token_latex("PI_NUMBER", text)
+          return(NULL)
+        }
         self$add_token_latex("GREEK_IDENTIFIER", text)
         return(NULL)
       }
@@ -208,7 +182,7 @@ Scanner = R6::R6Class("Scanner",
       }
     },
 
-    # Solo los literals tienen "literal != NULL"
+    # Only literals have "literal != NULL"
     add_token = function(type, literal = NULL) {
       text = substr(self$source, self$start, self$current - 1)
       self$tokens = append(self$tokens, Token$new(type, text, literal))
