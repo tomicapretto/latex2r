@@ -139,7 +139,6 @@ Parser = R6::R6Class("Parser",
           right = self$unary()
           expr = Binary$new(expr, operator, right)
         }
-
       }
       return(expr)
     },
@@ -204,7 +203,16 @@ Parser = R6::R6Class("Parser",
       }
 
       if (self$match('E_NUMBER')) {
-        return(Literal$new('exp(1)'))
+        arg = Literal$new('1')
+        if (self$match('CARET')) {
+          if (self$match('LEFT_BRACE')) {
+            arg = self$expression()
+            self$consume('RIGHT_BRACE', "Expect '}' after expression")
+          } else {
+            arg = self$primary()
+          }
+        }
+        return(ExpFun$new(arg))
       }
 
       if (self$match(c('IDENTIFIER', 'GREEK_IDENTIFIER'))) {

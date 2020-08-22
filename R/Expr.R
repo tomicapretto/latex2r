@@ -7,6 +7,19 @@ Expr = R6::R6Class("Expr",
   )
 )
 
+Grouping = R6::R6Class("Grouping",
+  inherit = Expr,
+  public = list(
+    expression = NULL,
+    initialize = function(expression) {
+      self$expression = expression
+    },
+    accept = function(visitor) {
+      visitor$visitGroupingExpr(self)
+    }
+  )
+)
+
 Binary = R6::R6Class("Binary",
   inherit = Expr,
   public = list(
@@ -69,6 +82,18 @@ LogFun = R6::R6Class("LogFun",
   )
 )
 
+ExpFun = R6::R6Class("ExpFun",
+  inherit = Literal,
+  public = list(
+    arg = 1,
+    initialize = function(arg) {
+      self$arg = arg
+    },
+    accept = function(visitor) {
+      visitor$visitExpFunExpr(self)
+    }
+  )
+)
 
 Supsubscript = R6::R6Class("Supsubscript",
   inherit = Expr,
@@ -90,15 +115,15 @@ Supsubscript = R6::R6Class("Supsubscript",
   )
 )
 
-Grouping = R6::R6Class("Grouping",
+Variable = R6::R6Class("Variable",
   inherit = Expr,
   public = list(
-    expression = NULL,
-    initialize = function(expression) {
-      self$expression = expression
+    name = NULL,
+    initialize = function(name) {
+      self$name = name
     },
     accept = function(visitor) {
-      visitor$visitGroupingExpr(self)
+      visitor$visitVariableExpr(self)
     }
   )
 )
@@ -116,15 +141,4 @@ Literal = R6::R6Class("Literal",
   )
 )
 
-Variable = R6::R6Class("Variable",
-  inherit = Expr,
-  public = list(
-    name = NULL,
-    initialize = function(name) {
-      self$name = name
-    },
-    accept = function(visitor) {
-      visitor$visitVariableExpr(self)
-    }
-  )
-)
+

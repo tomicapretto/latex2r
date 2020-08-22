@@ -78,23 +78,22 @@ RPrinter = R6::R6Class(
       paste0("log(", expr$arg$accept(self), ", base = ", expr$base$accept(self), ")")
     },
 
-    visitSupsubscriptExpr = function(expr) {
-        if (is.null(expr$sup)) {
-          output = paste0(
-            expr$left$accept(self), "_", expr$sub$accept(self)
-          )
-          return(output)
-        }
+    visitExpFunExpr = function(expr) {
+      paste0("exp(", expr$arg$accept(self), ")")
+    },
 
-        if (is.null(expr$sub)) {
-          output = paste0(
-            expr$left$accept(self), "^", expr$sup$accept(self)
-          )
-          return(output)
-        }
-        paste0(
-          expr$left$accept(self), "_", expr$sub$accept(self), "^", expr$sup$accept(self)
-        )
+    visitSupsubscriptExpr = function(expr) {
+      if (is.null(expr$sup)) {
+        output = paste0(expr$left$accept(self), "_", expr$sub$accept(self))
+        return(output)
+      }
+      if (is.null(expr$sub)) {
+        output = paste0(expr$left$accept(self), "^", expr$sup$accept(self))
+        return(output)
+      }
+      paste0(
+        expr$left$accept(self), "_", expr$sub$accept(self), "^", expr$sup$accept(self)
+      )
     },
 
     visitGroupingExpr = function(expr) {
