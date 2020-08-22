@@ -33,8 +33,8 @@ translated expression. Of course, names must be bound to a value if we
 expect this to work.
 
 ``` r
-eval(parse(text = latex2r("\\tanh(x_1 ^ 2)")), envir = list(x_1 = 2))
-#> [1] 0.9993293
+eval(parse(text = latex2r("\\pi * \\sin(\\frac{x}{2})")), envir = list(x = pi))
+#> [1] 3.141593
 ```
 
 And finally an extra feature which is possible due to R is so
@@ -57,8 +57,8 @@ plot(x, y, type = "l")
 <img src="man/figures/README-example3-1.png" width="75%" style="display: block; margin: auto;" />
 
 This is experimental but I think it is so cool that it is worth a chance
-in the package. For those dare to play with R most unique features, the
-[source code](R/latex2fun.R) is a nice place.
+in the package. For those who like to play with R most weird features,
+the [source code](R/latex2fun.R) is a nice place.
 
 ## Supported LaTeX
 

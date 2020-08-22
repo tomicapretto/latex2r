@@ -39,7 +39,7 @@ latex2r("\\beta_1^{\\frac{x+1}{x^2 \\cdot y}}")
 With a combination of `parse()` and `eval()` you can evaluate the translated expression.
 Of course, names must be bound to a value if we expect this to work.
 ```{r example2}
-eval(parse(text = latex2r("\\tanh(x_1 ^ 2)")), envir = list(x_1 = 2))
+eval(parse(text = latex2r("\\pi * \\sin(\\frac{x}{2})")), envir = list(x = pi))
 ```
 
 And finally an extra feature which is possible due to R is so permissive. `latex2fun()` 
@@ -57,7 +57,7 @@ plot(x, y, type = "l")
 ```
 
 This is experimental but I think it is so cool that it is worth a chance in the package. 
-For those dare to play with R most unique features, 
+For those who like to play with R most weird features, 
 the [source code](R/latex2fun.R) is a nice place.
 
 ## Supported LaTeX
