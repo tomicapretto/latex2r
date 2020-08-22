@@ -118,6 +118,7 @@ See the next example
 
 ```{r}
 latex2r("\\sin{2 * \\pi * t}")
+latex2r("e * x")
 latex2r("e^{x + i * y}")
 ```
 

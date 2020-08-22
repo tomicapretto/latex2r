@@ -132,8 +132,10 @@ In `R` \(\pi\) is a built-in constant number and \(e\) is obtained with
 ``` r
 latex2r("\\sin{2 * \\pi * t}")
 #> [1] "sin(2 * pi * t)"
+latex2r("e * x")
+#> [1] "exp(1) * x"
 latex2r("e^{x + i * y}")
-#> [1] "exp(1)^(x + i * y)"
+#> [1] "exp(x + i * y)"
 ```
 
 But note that complex numbers are not supported (yet?).
