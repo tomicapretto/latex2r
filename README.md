@@ -117,8 +117,8 @@ And the following functions
 Although something like `\sin5` renders as \(\sin5\) and we all
 understand this means sine of 5, we require explicit grouping with `{}`
 or `()` to avoid ambiguity in the function argument. What if I write
-`\sin5a`? Does it mean times the sine of 5 or the sine of 5 times a?
-Explicit grouping elimintes ambiguity.
+`\sin5a`? Does it mean a times the sine of 5 or the sine of 5 times a?
+Explicit grouping is a simple solution to eliminate this ambiguity.
 
 #### Special treatment for some characters
 
