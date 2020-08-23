@@ -8,7 +8,7 @@ get2 = function(x) {
 }
 
 # Heuristic to determine the arguments of a function.
-# TODO: Improve this (for example, it does not allow an argument called'c').
+# TODO: Improve this (for example, it does not allow an argument called 'c').
 get_args = function(expr, sort=TRUE) {
   expr = parse(text = expr)
   ast = unlist(get_ast(expr))
@@ -34,7 +34,7 @@ new_function = function(args, body, envir = parent.frame()) {
   f = function(){}
   f_args = rep(list(bquote()), length(args))
   names(f_args) = args
-  # args = setNames(rep(list(bquote()), length(args)), args)
+
   formals(f) = f_args
   body(f) = parse(text = body)
   environment(f) = envir

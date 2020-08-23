@@ -57,8 +57,11 @@ plot(x, y, type = "l")
 ```
 
 This is experimental but I think it is so cool that it is worth a chance in the package. 
-For those who like to play with R most weird features, 
+For those who like to play with R most weird features, they would find
 the [source code](R/latex2fun.R) is a nice place.
+
+And finally, if you call `latex2r(interactive=TRUE)` it launches a REPL that you can
+use interactively.
 
 ## Supported LaTeX
 
