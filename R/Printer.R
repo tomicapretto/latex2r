@@ -54,7 +54,7 @@ RPrinter = R6::R6Class(
       for (expr in exprs) {
         string = paste0(string, switch(mode,
           "supsupbscript" = self$print_subsubscript(expr),
-          "unary" = paste(expr$operator$lexeme, expr$accept(self)),
+          "unary" = paste(expr$operator$lexeme, expr$right$accept(self)),
           "binary" = paste(expr$left$accept(self), expr$operator$lexeme, expr$right$accept(self)),
           "group" = paste0("(", expr$expression$accept(self), ")")
         ))

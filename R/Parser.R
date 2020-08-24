@@ -83,6 +83,7 @@ Parser = R6::R6Class("Parser",
     addition = function() {
       expr = self$multiplication()
       while(self$match(c('MINUS', 'PLUS'))) {
+        print("aaa")
         operator = self$previous()
         right = self$multiplication()
         expr = Binary$new(expr, operator, right)
@@ -91,7 +92,6 @@ Parser = R6::R6Class("Parser",
     },
 
     multiplication = function() {
-
       while(self$match('FRAC')) {
         # Kind of a hack. I should use more elegant ways if possible.
         self$consume('LEFT_BRACE', "Expect '{' after FRAC.")
@@ -112,8 +112,8 @@ Parser = R6::R6Class("Parser",
       }
 
       expr = self$unary()
-      while(self$match(c('STAR', 'SLASH', 'UNDERSCORE', 'CARET'))) {
 
+      while(self$match(c('STAR', 'SLASH', 'UNDERSCORE', 'CARET'))) {
         if (self$previous()$type == 'CARET') {
           sub = NULL
           sup = self$unary()
@@ -123,7 +123,6 @@ Parser = R6::R6Class("Parser",
             error = function(cnd) {
             self$error(cnd$message)
           })
-
         } else if (self$previous()$type == 'UNDERSCORE') {
           sup = NULL
           sub = self$unary()
@@ -133,7 +132,6 @@ Parser = R6::R6Class("Parser",
             error = function(cnd) {
               self$error(cnd$message)
             })
-
         } else {
           operator = self$previous()
           right = self$unary()
