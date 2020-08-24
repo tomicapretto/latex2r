@@ -13,16 +13,16 @@ latexInput = function(inputId, label, width = NULL) {
   input_latex = paste0(inputId, "_latex")
 
   shiny::addResourcePath(
-    prefix = 'www',
+    prefix = 'wwwLatex2r',
     directoryPath = system.file('www', package='latex2r')
   )
   shiny::tagList(
     shiny::singleton(shiny::tags$head(
-        shiny::tags$script(src = "www/jquery.min.js"),
-        shiny::tags$script(src = "www/mathquill.min.js"),
+        shiny::tags$script(src = "wwwLatex2r/jquery.min.js"),
+        shiny::tags$script(src = "wwwLatex2r/mathquill.min.js"),
         shiny::tags$link(
           rel = "stylesheet", type = "text/css",
-          href = "www/mathquill.css"
+          href = "wwwLatex2r/mathquill.css"
         ),
         shiny::tags$script("var MQ = MathQuill.getInterface(2);")
     )),

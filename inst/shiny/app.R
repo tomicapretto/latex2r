@@ -3,6 +3,7 @@ library(latex2r)
 
 ui = fluidPage(
   br(),
+  textInput("text", "Usual textInput"),
   latexInput('id1', "Math input"),
   actionButton("translate", "Translate"),
   br(), br(),

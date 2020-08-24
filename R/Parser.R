@@ -77,7 +77,17 @@ Parser = R6::R6Class("Parser",
 
     # Here we start walking through the grammar.
     expression = function() {
-      self$addition()
+      self$assignment()
+    },
+
+    assignment = function() {
+      expr = self$addition()
+      while(self$match('EQUAL')) {
+        operator = self$previous()
+        right = self$addition()
+        expr = Binary$new(expr, operator, right)
+      }
+      return(expr)
     },
 
     addition = function() {
@@ -146,7 +156,7 @@ Parser = R6::R6Class("Parser",
           return(self$unary_fn())
         } else {
           operator = self$previous()
-          right = self$addition() # used to be self$unary() but don't remember why
+          right = self$addition()
           return(Unary$new(operator, right))
         }
       }

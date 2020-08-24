@@ -60,6 +60,7 @@ Scanner = R6::R6Class("Scanner",
         "_" = self$add_token('UNDERSCORE'),
         "^" = self$add_token('CARET'),
         "e" = self$add_token('E_NUMBER'),
+        "=" = self$add_token('EQUAL'),
         " " = NULL,
 
         # Comportamiento default
