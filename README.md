@@ -120,6 +120,16 @@ And the following functions
 
 ### Some remarks
 
+#### Explicit multiplication
+
+In LaTeX you can write `x^2 + xy y^2` and we understand the `xy` means
+“x times y”. But this is ambiguous for the parser. Is this an
+identifier called `xy` or is it x times y? Thus, `latex2r()` requires
+explicit mutliplication via `*`, `times` or `cdots`.
+
+Another option would have been to restrict identifiers to one character
+only. But I think this is a worse solution than explicit multiplication.
+
 #### Explicit grouping
 
 Although something like `\sin5` renders as \(\sin5\) and we all
