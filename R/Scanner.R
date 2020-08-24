@@ -160,9 +160,12 @@ Scanner = R6::R6Class("Scanner",
 
     latex_delimiters = function(text) {
       if (text == '\\left') {
+        if (self$peek() == "\\") self$advance()
         if (self$peek() == '(') {
+          self$advance()
           self$add_token('LEFT_PAREN')
         } else if (self$peek() == '{') {
+          self$advance()
           self$add_token('LEFT_BRACE')
         } else {
           self$error("Unrecognized latex character.")
@@ -170,6 +173,7 @@ Scanner = R6::R6Class("Scanner",
       }
 
       if (text == '\\right') {
+        if (self$peek() == "\\") self$advance()
         if (self$peek() == ')') {
           self$advance()
           self$add_token('RIGHT_PAREN')

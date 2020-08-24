@@ -23,7 +23,7 @@ Parser = R6::R6Class("Parser",
       },
       error = function(cnd) {
         super$shared_env$had_error = TRUE
-        super$error(self$peek(), paste("Unexpected error when parsing", cnd$message))
+        super$error(self$peek(), paste("Unexpected error when parsing:", cnd$message))
       })
     },
 
