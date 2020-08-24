@@ -83,7 +83,6 @@ Parser = R6::R6Class("Parser",
     addition = function() {
       expr = self$multiplication()
       while(self$match(c('MINUS', 'PLUS'))) {
-        print("aaa")
         operator = self$previous()
         right = self$multiplication()
         expr = Binary$new(expr, operator, right)
@@ -147,7 +146,7 @@ Parser = R6::R6Class("Parser",
           return(self$unary_fn())
         } else {
           operator = self$previous()
-          right = self$unary()
+          right = self$addition() # used to be self$unary() but don't remember why
           return(Unary$new(operator, right))
         }
       }
