@@ -37,11 +37,11 @@ eval(parse(text = latex2r("\\pi * \\sin(\\frac{x}{2})")), envir = list(x = pi))
 #> [1] 3.141593
 ```
 
-And finally an extra feature which is possible due to R is so
-permissive. `latex2fun()` receives a LaTeX expression that represents
-the definition of a mathematical function and returns an R function that
-computes the function value and has arguments representing all the
-variables involved in the function.
+There is an extra feature which is possible due to R is so permissive.
+`latex2fun()` receives a LaTeX expression that represents the definition
+of a mathematical function and returns an R function that computes the
+function value and has arguments representing all the variables involved
+in the function.
 
 ``` r
 x = seq(-2*pi, 2*pi, length.out = 500)
@@ -60,8 +60,13 @@ This is experimental but I think it is so cool that it is worth a chance
 in the package. For those who like to play with R most weird features,
 they would find the [source code](R/latex2fun.R) is a nice place.
 
-And finally, if you call `latex2r(interactive=TRUE)` it launches a REPL
+In addition, if you call `latex2r(interactive=TRUE)` it launches a REPL
 that you can use interactively.
+
+And finally, we’ve recently added a shiny input called `latexInput()`
+that you can use to receive math expressions as latex code with
+mathquill in your app. If you run `launch_app()` you will see a small
+app for demonstration purposes.
 
 ## Supported LaTeX
 
@@ -148,3 +153,10 @@ But note that complex numbers are not supported (yet?).
 If you write `\\log(x)` it will be interpreted as the natural logarithm
 of `x`. If you write `\\log_n(x)` it will be interpreted as the
 logarithm of `x` with base `n`.
+
+``` r
+latex2r("\\log(x + 1)")
+#> [1] "log(x + 1)"
+latex2r("\\log_2(x + 1)")
+#> [1] "log(x + 1, base = 2)"
+```
