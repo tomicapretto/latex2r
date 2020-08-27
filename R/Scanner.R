@@ -18,7 +18,7 @@ Scanner = R6::R6Class("Scanner",
         self$keywords = get_pkg_data('KEYWORDS')
         self$keywords_lexemes = get_pkg_data('KEYWORDS_LEXEMES')
       } else {
-        error("scan_error", "Source can't be NULL.")
+        self$error("scan_error", "Source can't be NULL.")
       }
     },
 

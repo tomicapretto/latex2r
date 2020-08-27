@@ -1,12 +1,11 @@
 Package: latex2r
 Title: Translate Latex Formulas to R Code
-Version: 0.0.0.9000
+Version: 0.1.0
 Authors@R: 
     person(given = "Tomas",
            family = "Capretto",
            role = c("aut", "cre"),
-           email = "tomicapretto@gmail.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+           email = "tomicapretto@gmail.com")
 Description: This package implements a minimal LaTeX parser that is used to translate
     LaTeX formulas to R code.
 License: MIT + file LICENSE
