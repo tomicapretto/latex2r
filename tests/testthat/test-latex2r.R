@@ -52,10 +52,3 @@ test_that("complex functions work", {
   expect_equal(latex2r("x^{\\frac{x^2 + y^2}{2*x/y}}"), latex2r("x^((x^2 + y^2) / (2 * x / y))"))
   expect_equal(latex2r("\\beta_1^{\\theta_x*\\pi*e^{\\frac{1}{x^2}}}"), "beta_1^(theta_x * pi * exp(1 / (x^2)))")
 })
-
-
-
-
-
-
-# La base tambien deberia poder ser un identifier

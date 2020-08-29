@@ -101,27 +101,7 @@ Parser = R6::R6Class("Parser",
     },
 
     multiplication = function() {
-      while(self$match('FRAC')) {
-        # Kind of a hack. I should use more elegant ways if possible.
-        self$consume('LEFT_BRACE', "Expect '{' after FRAC.")
-        expr1 = self$expression()
-        self$consume('RIGHT_BRACE', "Expect '}' after expression")
-        self$consume('LEFT_BRACE', "Expect '{' after FRAC.")
-        expr2 = self$expression()
-        self$consume('RIGHT_BRACE', "Expect '}' after expression")
-
-        if (!inherits(expr1, c("Unary", "Literal", "Variable"))) {
-          expr1 = Grouping$new(expr1)
-        }
-        if (!inherits(expr2, c("Unary", "Literal", "Variable"))) {
-          expr2 = Grouping$new(expr2)
-        }
-        expr = Binary$new(expr1, Token$new('FRAC', '/', NULL), expr2)
-        return(expr)
-      }
-
       expr = self$unary()
-
       while(self$match(c('STAR', 'SLASH', 'UNDERSCORE', 'CARET'))) {
         if (self$previous()$type == 'CARET') {
           sub = NULL
@@ -156,7 +136,7 @@ Parser = R6::R6Class("Parser",
           return(self$unary_fn())
         } else {
           operator = self$previous()
-          right = self$addition()
+          right = self$unary() # it was addition
           return(Unary$new(operator, right))
         }
       }
@@ -237,8 +217,28 @@ Parser = R6::R6Class("Parser",
         self$consume('RIGHT_BRACE', "Expect '}' after expression.")
         return(Grouping$new(expr))
       }
+
+      if (self$match('FRAC')) {
+        # Kind of a hack. I should use more elegant ways if possible.
+        self$consume('LEFT_BRACE', "Expect '{' after FRAC.")
+        expr1 = self$expression()
+        self$consume('RIGHT_BRACE', "Expect '}' after expression")
+        self$consume('LEFT_BRACE', "Expect '{' after FRAC.")
+        expr2 = self$expression()
+        self$consume('RIGHT_BRACE', "Expect '}' after expression")
+
+        if (!inherits(expr1, c("Unary", "Literal", "Variable"))) {
+          expr1 = Grouping$new(expr1)
+        }
+        if (!inherits(expr2, c("Unary", "Literal", "Variable"))) {
+          expr2 = Grouping$new(expr2)
+        }
+        return(Binary$new(expr1, Token$new('FRAC', '/', NULL), expr2))
+      }
       self$error("Expect expression.")
     }
 
   )
 )
+
+
