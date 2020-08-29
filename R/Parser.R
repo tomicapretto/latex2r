@@ -115,6 +115,13 @@ Parser = R6::R6Class("Parser",
         } else if (self$previous()$type == 'UNDERSCORE') {
           sup = NULL
           sub = self$unary()
+          if (inherits(sub, 'Grouping')) {
+            sub = sub$expression
+            if (!inherits(sub, c('Variable', 'Literal'))) {
+              self$error("Expect a number or a variable name as subscript.")
+            }
+
+          }
           if (self$match('CARET')) sup = self$multiplication()
           expr = tryCatch(
             Supsubscript$new(expr, sub = sub, sup = sup),
