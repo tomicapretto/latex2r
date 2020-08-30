@@ -1,6 +1,6 @@
 Package: latex2r
 Title: Translate Latex Formulas to R Code
-Version: 0.1.0
+Version: 0.1.2
 Authors@R: 
     person(given = "Tomas",
            family = "Capretto",
