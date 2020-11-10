@@ -77,7 +77,7 @@ Parser = R6::R6Class("Parser",
 
     implicit_multiplication = function() {
       skip = c('MINUS', 'PLUS', 'STAR', 'SLASH', 'CARET', 'UNDERSCORE',
-               'RIGHT_PAREN', 'RIGHT_BRACE')
+               'RIGHT_PAREN', 'RIGHT_BRACE', 'EQUAL')
       (!self$check(skip)) && !self$is_at_end()
     },
 
