@@ -156,11 +156,11 @@ Parser = R6::R6Class("Parser",
         if (self$peek()$type == 'LEFT_BRACE') {
           # This first `consume()` is not strictly necessary, `advance()`` would suffice.
           self$consume('LEFT_BRACE', paste0("Expect '{' after '", operator, "'"))
-          arg = self$expression()
+          arg = self$addition()
           self$consume('RIGHT_BRACE', "Expect '}' after expression.")
         } else {
           self$consume('LEFT_PAREN', paste0("Expect '(' after '", operator, "'"))
-          arg = self$expression()
+          arg = self$addition()
           self$consume('RIGHT_PAREN', "Expect ')' after expression.")
         }
       } else {
@@ -199,7 +199,7 @@ Parser = R6::R6Class("Parser",
         arg = Literal$new('1')
         if (self$match('CARET')) {
           if (self$match('LEFT_BRACE')) {
-            arg = self$expression()
+            arg = self$addition()
             self$consume('RIGHT_BRACE', "Expect '}' after expression")
           } else {
             arg = self$primary()
@@ -213,13 +213,13 @@ Parser = R6::R6Class("Parser",
       }
 
       if (self$match('LEFT_PAREN')) {
-        expr = self$expression()
+        expr = self$addition()
         self$consume('RIGHT_PAREN', "Expect ')' after expression.")
         return(Grouping$new(expr))
       }
 
       if (self$match('LEFT_BRACE')) {
-        expr = self$expression()
+        expr = self$addition()
         self$consume('RIGHT_BRACE', "Expect '}' after expression.")
         return(Grouping$new(expr))
       }
@@ -227,10 +227,10 @@ Parser = R6::R6Class("Parser",
       if (self$match('FRAC')) {
         # Kind of a hack. I should use more elegant ways if possible.
         self$consume('LEFT_BRACE', "Expect '{' after FRAC.")
-        expr1 = self$expression()
+        expr1 = self$addition()
         self$consume('RIGHT_BRACE', "Expect '}' after expression")
         self$consume('LEFT_BRACE', "Expect '{' after FRAC.")
-        expr2 = self$expression()
+        expr2 = self$addition()
         self$consume('RIGHT_BRACE', "Expect '}' after expression")
 
         if (!inherits(expr1, c("Unary", "Literal", "Variable"))) {
