@@ -7,25 +7,34 @@ get2 = function(x) {
   return(NULL)
 }
 
+is_function2 = function(x) {
+  greek_letters = c(
+    "alpha", "theta", "tau", "beta", "vartheta", "pi", "upsilon",
+    "gamma", "varpi", "phi", "delta", "kappa", "rho",
+    "varphi", "epsilon", "lambda", "varrho", "chi", "varepsilon",
+    "mu", "sigma", "psi", "zeta", "nu", "varsigma", "omega", "eta",
+    "xi", "Gamma", "Lambda", "Sigma", "Psi", "Delta", "Xi",
+    "Upsilon", "Omega", "Theta", "Pi", "Phi"
+  )
+  x_chr = as.character(x)
+  if (tolower(x_chr) %in% letters) return(FALSE)
+  if (tolower(x_chr) %in% greek_letters) return(FALSE)
+  is.function(get2(x_chr))
+}
+
 # Heuristic to determine the arguments of a function.
-# TODO: Improve this (for example, it does not allow an argument called 'c').
-get_args = function(expr, sort=TRUE) {
+get_args = function(expr, sort = TRUE) {
   expr = parse(text = expr)
   ast = unlist(get_ast(expr))
   result = sapply(
     ast,
-    function(x) {
-      if (is.symbol(x) && !is.function(get2(as.character(x)))) {
-        as.character(x)
-      } else {
-        NA
-      }
-    }
+    function(x) {if (is.symbol(x) && !is_function2(x)) as.character(x) else  NA}
   )
+  result = result[!is.na(result)]
   if (sort) {
-    return(sort(unique(result[!is.na(result)])))
+    return(sort(unique(result)))
   } else {
-    return(unique(result[!is.na(result)]))
+    return(unique(result))
   }
 }
 

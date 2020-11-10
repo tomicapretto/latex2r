@@ -9,6 +9,8 @@ Explicit multiplication still works.
 ## Maintenance and fixes
 
 * Only variable names can have subscripts. 
+* `latex2fun()` utils were updated so now, for example, any letter can be a function argument. 
+In general the process of transforming a latex expression to a function is more robust.
 
 ## Deprecation
 
