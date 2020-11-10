@@ -75,6 +75,12 @@ Parser = R6::R6Class("Parser",
       stop_custom("parse_error", message)
     },
 
+    implicit_multiplication = function() {
+      skip = c('MINUS', 'PLUS', 'STAR', 'SLASH', 'CARET', 'UNDERSCORE',
+               'RIGHT_PAREN', 'RIGHT_BRACE')
+      (!self$check(skip)) && !self$is_at_end()
+    },
+
     # Here we start walking through the grammar.
     expression = function() {
       self$assignment()
@@ -151,7 +157,7 @@ Parser = R6::R6Class("Parser",
 
     # This is a helper to represent unary functions that require
     # special care when translating from LaTeX to R.
-    unary_fn_arg = function() {
+    unary_fn_arg = function(operator) {
       if (self$check(c('LEFT_BRACE', 'LEFT_PAREN'))) {
         if (self$peek()$type == 'LEFT_BRACE') {
           # This first `consume()` is not strictly necessary, `advance()`` would suffice.
@@ -175,47 +181,91 @@ Parser = R6::R6Class("Parser",
     unary_fn = function() {
       operator = tolower(self$previous()$type)
       if (operator == 'log' && self$match('UNDERSCORE')) {
-        base = self$primary()
-        if (!inherits(base, 'Literal')) {
-          self$parse_error("Expect a number, and only a number, as the logarithm base.")
-        }
-        arg = self$unary_fn_arg()
-        return(LogFun$new(base, arg))
+        expr = LogFun$new(self$log_base(), self$unary_fn_arg(operator))
+      } else {
+        expr = UnaryFun$new(operator, self$unary_fn_arg(operator))
       }
-      arg = self$unary_fn_arg()
-      return(UnaryFun$new(operator, arg))
+      if (self$implicit_multiplication()) {
+        right = self$addition()
+        return(Binary$new(expr, Token$new('STAR', '*'), right))
+      }
+      return(expr)
+    },
+
+    exp_fn = function() {
+      arg = Literal$new('1')
+      if (self$match('CARET')) {
+        if (self$match('LEFT_BRACE')) {
+          arg = self$addition()
+          self$consume('RIGHT_BRACE', "Expect '}' after expression")
+        } else {
+          arg = self$primary()
+        }
+      }
+      return(ExpFun$new(arg))
+    },
+
+    # A special case of primary()
+    log_base = function() {
+      if (self$match(c('NUMBER'))) {
+        return(Literal$new(self$previous()$literal))
+      }
+      if (self$match('PI_NUMBER')) {
+        return(Literal$new('pi'))
+      }
+      if (self$match('E_NUMBER')) {
+        return(self$exp_fn())
+      }
+      if (self$match(c('IDENTIFIER', 'GREEK_IDENTIFIER'))) {
+        return(Variable$new(self$previous()$lexeme))
+      }
+      self$parse_error("Expect number or identifier as log base.")
     },
 
     primary = function() {
       if (self$match(c('NUMBER'))) {
-        return(Literal$new(self$previous()$literal))
-      }
-
-      if (self$match('PI_NUMBER')) {
-        return(Literal$new('pi'))
-      }
-
-      if (self$match('E_NUMBER')) {
-        arg = Literal$new('1')
-        if (self$match('CARET')) {
-          if (self$match('LEFT_BRACE')) {
-            arg = self$addition()
-            self$consume('RIGHT_BRACE', "Expect '}' after expression")
-          } else {
-            arg = self$primary()
-          }
+        expr = Literal$new(self$previous()$literal)
+        if (self$implicit_multiplication()) {
+          right = self$addition()
+          return(Binary$new(expr, Token$new('STAR', '*'), right))
         }
-        return(ExpFun$new(arg))
+        return(expr)
+      }
+      if (self$match('PI_NUMBER')) {
+        expr = Literal$new('pi')
+        if (self$implicit_multiplication()) {
+          right = self$addition()
+          return(Binary$new(expr, Token$new('STAR', '*'), right))
+        }
+        return(expr)
+      }
+      if (self$match('E_NUMBER')) {
+        expr = self$exp_fn()
+        if (self$implicit_multiplication()) {
+          right = self$addition()
+          return(Binary$new(expr, Token$new('STAR', '*'), right))
+        }
+        return(expr)
       }
 
       if (self$match(c('IDENTIFIER', 'GREEK_IDENTIFIER'))) {
-        return(Variable$new(self$previous()$lexeme))
+        expr = Variable$new(self$previous()$lexeme)
+        if (self$implicit_multiplication()) {
+          right = self$addition()
+          return(Binary$new(expr, Token$new('STAR', '*'), right))
+        }
+        return(expr)
       }
 
       if (self$match('LEFT_PAREN')) {
         expr = self$addition()
         self$consume('RIGHT_PAREN', "Expect ')' after expression.")
-        return(Grouping$new(expr))
+        expr = Grouping$new(expr)
+        if (self$implicit_multiplication()) {
+          right = self$addition()
+          return(Binary$new(expr, Token$new('STAR', '*'), right))
+        }
+        return(expr)
       }
 
       if (self$match('LEFT_BRACE')) {
