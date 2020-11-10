@@ -67,11 +67,11 @@ Parser = R6::R6Class("Parser",
     # Otherwise, we've found an error and `error()` is called.
     consume = function(type, message) {
       if (self$check(type)) return(self$advance())
-      self$error(message)
+      self$parse_error(message)
     },
 
     # Throws a custom error class that is appropiately handled.
-    error = function(message) {
+    parse_error = function(message) {
       stop_custom("parse_error", message)
     },
 
@@ -110,7 +110,7 @@ Parser = R6::R6Class("Parser",
           expr = tryCatch(
             Supsubscript$new(expr, sub = sub, sup = sup),
             error = function(cnd) {
-            self$error(cnd$message)
+              self$parse_error(cnd$message)
           })
         } else if (self$previous()$type == 'UNDERSCORE') {
           sup = NULL
@@ -118,15 +118,14 @@ Parser = R6::R6Class("Parser",
           if (inherits(sub, 'Grouping')) {
             sub = sub$expression
             if (!inherits(sub, c('Variable', 'Literal'))) {
-              self$error("Expect a number or a variable name as subscript.")
+              self$parse_error("Expect a number or a variable name as subscript.")
             }
-
           }
           if (self$match('CARET')) sup = self$multiplication()
           expr = tryCatch(
             Supsubscript$new(expr, sub = sub, sup = sup),
             error = function(cnd) {
-              self$error(cnd$message)
+              self$parse_error(cnd$message)
             })
         } else {
           operator = self$previous()
@@ -158,14 +157,14 @@ Parser = R6::R6Class("Parser",
           # This first `consume()` is not strictly necessary, `advance()`` would suffice.
           self$consume('LEFT_BRACE', paste0("Expect '{' after '", operator, "'"))
           arg = self$expression()
-          self$consume('RIGHT_BRACE', "Expect '}' after expression")
+          self$consume('RIGHT_BRACE', "Expect '}' after expression.")
         } else {
           self$consume('LEFT_PAREN', paste0("Expect '(' after '", operator, "'"))
           arg = self$expression()
-          self$consume('RIGHT_PAREN', "Expect ')' after expression")
+          self$consume('RIGHT_PAREN', "Expect ')' after expression.")
         }
       } else {
-        self$error(
+        self$parse_error(
           paste0("Expect '{' or '(' after '", operator,
                  "' to avoid ambiguity in the function argument.")
         )
@@ -178,7 +177,7 @@ Parser = R6::R6Class("Parser",
       if (operator == 'log' && self$match('UNDERSCORE')) {
         base = self$primary()
         if (!inherits(base, 'Literal')) {
-          self$error("Expect a number, and only a number, as the logarithm base.")
+          self$parse_error("Expect a number, and only a number, as the logarithm base.")
         }
         arg = self$unary_fn_arg()
         return(LogFun$new(base, arg))
@@ -242,7 +241,7 @@ Parser = R6::R6Class("Parser",
         }
         return(Binary$new(expr1, Token$new('FRAC', '/', NULL), expr2))
       }
-      self$error("Expect expression.")
+      self$parse_error("Expect expression.")
     }
 
   )

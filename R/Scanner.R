@@ -41,7 +41,7 @@ Scanner = R6::R6Class("Scanner",
       },
       scan_error = function(cnd) {
         super$shared_env$had_error = TRUE
-        super$report('', cnd$message)
+        super$report(cnd$message, '')
         return(NULL)
       })
     },

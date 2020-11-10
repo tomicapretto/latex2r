@@ -22,7 +22,7 @@ stop_custom = function(.subclass, message, call = NULL, ...) {
       call = call,
       ...
     ),
-    class = c(.subclass, "error", "condition")
+    class = c(.subclass, "condition")
   )
   stop(err)
 }

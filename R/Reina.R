@@ -47,14 +47,19 @@ Reina = R6::R6Class("Reina",
 
     error = function(token, message) {
       if (token$type == 'EOF') {
-        self$report("at end", message)
+        self$report(message, "At end")
       } else {
-        self$report(paste0("at '", token$lexeme, "'"), message)
+        self$report(message, paste0("At '", token$lexeme, "'"))
       }
     },
-    report = function(where, message) {
+    report = function(message, where) {
       self$shared_env$had_error = TRUE
-      cat(paste0("Error ", where, ": ", message, "\n"))
+      if (nchar(where) == 0) {
+        err = message
+      } else {
+        err = paste0(where, ": ", message)
+      }
+      stop_custom("latex2r.error", err)
     }
   )
 )
