@@ -1,6 +1,6 @@
 Package: latex2r
 Title: Translate Latex Formulas to R Code
-Version: 0.1.2
+Version: 0.1.3
 Authors@R: 
     person(given = "Tomas",
            family = "Capretto",
@@ -15,9 +15,7 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.0
 Imports: 
     R6 (>= 2.4.0),
-    purrr (>= 0.3.0),
-    shiny (>= 1.5.0),
-    glue (>= 1.3.0)
+    purrr (>= 0.3.0)
 Suggests: 
     testthat
 URL: https://github.com/tomicapretto/latex2r

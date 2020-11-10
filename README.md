@@ -16,7 +16,9 @@ devtools::install_github("tomicapretto/latex2r")
 ```
 
 This is a very young package so it may not work as expected if you try
-to translate things outside of the supported syntax.
+to translate things outside of the supported syntax. Please refer to
+[Supported LaTeX](#supported-latex) section for more information about
+it.
 
 ## Examples
 
@@ -63,11 +65,6 @@ they would find the [source code](R/latex2fun.R) is a nice place.
 In addition, if you call `latex2r(interactive=TRUE)` it launches a REPL
 that you can use interactively.
 
-And finally, we’ve recently added a shiny input called `latexInput()`
-that you can use to receive math expressions as latex code with
-mathquill in your app. If you run `launch_app()` you will see a small
-app for demonstration purposes.
-
 ## Supported LaTeX
 
 Only a small subset of LaTeX expressions are suported so far. However,
@@ -113,22 +110,26 @@ And the following functions
 
   - The operator `_` is used to represent subscripts. While you can do
     \(5_2\) in LaTeX, it is not allowed in the package since a subscript
-    on a number does not make sense.
+    on a number does not make sense.  
+    Only variable names (such as `x` or `\\pi`) can have subscripts.
   - In latex you can write `\sqrt[p]{x}` to represent the p-th root.
     However this is not allowed in this package (at least for now). To
     represent a p-th root you can use `x^{1/p}`.
 
 ### Some remarks
 
-#### Explicit multiplication
+#### Implicit multiplication
 
-In LaTeX you can write `x^2 + xy y^2` and we understand the `xy` means
-“x times y”. But this is ambiguous for the parser. Is this an
-identifier called `xy` or is it x times y? Thus, `latex2r()` requires
-explicit mutliplication via `*`, `times` or `cdots`.
+**tl;dr:** `xy` is understood as `x` times `y`.
 
-Another option would have been to restrict identifiers to one character
-only. But I think this is a worse solution than explicit multiplication.
+A previous version of this package required multiplication to be
+explicit. For example, `xy` would have been understood as an identifier
+called `xy`. Now, all identifiers, except from special ones (greek
+letters), are of one character only. If you do `abc^5` it will be
+understood as `a*b*c^5`.
+
+In addition, you can still pass an explicit multiplication operator such
+as `*`, `\times` or `\cdot`.
 
 #### Explicit grouping
 
@@ -140,12 +141,17 @@ Explicit grouping is a simple solution to eliminate this ambiguity.
 
 #### Special treatment for some characters
 
-Since the numbers \(\pi\) and \(e\) are so common in mathematical
-expressions they are treated as constant numbers and not as names of
-variables.
+Since the numbers
+<img src="https://render.githubusercontent.com/render/math?math=\pi">
+and <img src="https://render.githubusercontent.com/render/math?math=e">
+are so common in mathematical expressions they are treated as constant
+numbers and not as names of variables.
 
-In `R` \(\pi\) is a built-in constant number and \(e\) is obtained with
-`exp(1)`. See the next example
+In `R`
+<img src="https://render.githubusercontent.com/render/math?math=\pi"> is
+a built-in constant number and
+<img src="https://render.githubusercontent.com/render/math?math=e"> is
+obtained with `exp(1)`. See the next example
 
 ``` r
 latex2r("\\sin{2 * \\pi * t}")

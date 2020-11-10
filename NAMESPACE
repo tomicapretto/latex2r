@@ -2,5 +2,3 @@
 
 export(latex2fun)
 export(latex2r)
-export(latexInput)
-export(launch_app)

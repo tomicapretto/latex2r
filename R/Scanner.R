@@ -41,7 +41,7 @@ Scanner = R6::R6Class("Scanner",
       },
       scan_error = function(cnd) {
         super$shared_env$had_error = TRUE
-        super$report('', cnd$message)
+        super$report(cnd$message, '')
         return(NULL)
       })
     },
@@ -101,14 +101,12 @@ Scanner = R6::R6Class("Scanner",
 
     number = function() {
       while(is_digit(self$peek())) self$advance()
-
       # Buscamos parte fraccional, si es que hay
       if (self$peek() == "." && is_digit(self$peek_next())) {
         # Consumimos el '.'
         self$advance()
         while(is_digit(self$peek())) self$advance()
       }
-
       self$add_token(
         'NUMBER',
         as.numeric(substr(self$source, self$start, self$current - 1))
@@ -116,14 +114,8 @@ Scanner = R6::R6Class("Scanner",
     },
 
     identifier = function() {
-      while (is_alphanumeric(self$peek())) self$advance()
-      # Chequeamos si el identifier es una palabra reservada
-      text = substr(self$source, self$start, self$current - 1)
-      type = self$keywords[[text]]
-      if (is.null(type)) type = 'IDENTIFIER'
-      self$add_token(type)
+      self$add_token('IDENTIFIER')
     },
-
 
     latex = function() {
       if (self$peek() == ' ') {

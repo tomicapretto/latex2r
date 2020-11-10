@@ -33,7 +33,7 @@ test_that("logarithm works", {
 
 test_that("trig functions work", {
   expect_equal(latex2r("\\sin(x)"), latex2r("\\sin{x}"))
-  expect_equal(latex2r("\\cos{pi}"), "cos(pi)")
+  expect_equal(latex2r("\\cos{\\pi}"), "cos(pi)")
   expect_equal(latex2r("\\tan(e)"), "tan(exp(1))")
   expect_equal(latex2r("\\sin(x_1^2)+\\cos(x_1^2)"), "sin(x_1^2) + cos(x_1^2)")
 })
@@ -52,3 +52,20 @@ test_that("complex functions work", {
   expect_equal(latex2r("x^{\\frac{x^2 + y^2}{2*x/y}}"), latex2r("x^((x^2 + y^2) / (2 * x / y))"))
   expect_equal(latex2r("\\beta_1^{\\theta_x*\\pi*e^{\\frac{1}{x^2}}}"), "beta_1^(theta_x * pi * exp(1 / (x^2)))")
 })
+
+test_that("implicit multiplication - identifiers", {
+  expect_equal(latex2r("xyz"), "x * y * z")
+})
+
+test_that("implicit multiplication - numbers and identifiers", {
+  expect_equal(latex2r("3x4y5z"), "3 * x * 4 * y * 5 * z")
+})
+
+test_that("implicit multiplication - trigonometric", {
+  expect_equal(latex2r("\\sin(x)\\cos(y)\\tan(z)"), "sin(x) * cos(y) * tan(z)")
+})
+
+test_that("implicit multiplication - sqrt and log", {
+  expect_equal(latex2r("\\sqrt(x+y)\\log(z+z)\\sqrt(5)"), "sqrt(x + y) * log(z + z) * sqrt(5)")
+})
+

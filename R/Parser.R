@@ -67,12 +67,18 @@ Parser = R6::R6Class("Parser",
     # Otherwise, we've found an error and `error()` is called.
     consume = function(type, message) {
       if (self$check(type)) return(self$advance())
-      self$error(message)
+      self$parse_error(message)
     },
 
     # Throws a custom error class that is appropiately handled.
-    error = function(message) {
+    parse_error = function(message) {
       stop_custom("parse_error", message)
+    },
+
+    implicit_multiplication = function() {
+      skip = c('MINUS', 'PLUS', 'STAR', 'SLASH', 'CARET', 'UNDERSCORE',
+               'RIGHT_PAREN', 'RIGHT_BRACE', 'EQUAL')
+      (!self$check(skip)) && !self$is_at_end()
     },
 
     # Here we start walking through the grammar.
@@ -110,7 +116,7 @@ Parser = R6::R6Class("Parser",
           expr = tryCatch(
             Supsubscript$new(expr, sub = sub, sup = sup),
             error = function(cnd) {
-            self$error(cnd$message)
+              self$parse_error(cnd$message)
           })
         } else if (self$previous()$type == 'UNDERSCORE') {
           sup = NULL
@@ -118,15 +124,14 @@ Parser = R6::R6Class("Parser",
           if (inherits(sub, 'Grouping')) {
             sub = sub$expression
             if (!inherits(sub, c('Variable', 'Literal'))) {
-              self$error("Expect a number or a variable name as subscript.")
+              self$parse_error("Expect a number or a variable name as subscript.")
             }
-
           }
           if (self$match('CARET')) sup = self$multiplication()
           expr = tryCatch(
             Supsubscript$new(expr, sub = sub, sup = sup),
             error = function(cnd) {
-              self$error(cnd$message)
+              self$parse_error(cnd$message)
             })
         } else {
           operator = self$previous()
@@ -152,20 +157,20 @@ Parser = R6::R6Class("Parser",
 
     # This is a helper to represent unary functions that require
     # special care when translating from LaTeX to R.
-    unary_fn_arg = function() {
+    unary_fn_arg = function(operator) {
       if (self$check(c('LEFT_BRACE', 'LEFT_PAREN'))) {
         if (self$peek()$type == 'LEFT_BRACE') {
           # This first `consume()` is not strictly necessary, `advance()`` would suffice.
           self$consume('LEFT_BRACE', paste0("Expect '{' after '", operator, "'"))
-          arg = self$expression()
-          self$consume('RIGHT_BRACE', "Expect '}' after expression")
+          arg = self$addition()
+          self$consume('RIGHT_BRACE', "Expect '}' after expression.")
         } else {
           self$consume('LEFT_PAREN', paste0("Expect '(' after '", operator, "'"))
-          arg = self$expression()
-          self$consume('RIGHT_PAREN', "Expect ')' after expression")
+          arg = self$addition()
+          self$consume('RIGHT_PAREN', "Expect ')' after expression.")
         }
       } else {
-        self$error(
+        self$parse_error(
           paste0("Expect '{' or '(' after '", operator,
                  "' to avoid ambiguity in the function argument.")
         )
@@ -176,51 +181,95 @@ Parser = R6::R6Class("Parser",
     unary_fn = function() {
       operator = tolower(self$previous()$type)
       if (operator == 'log' && self$match('UNDERSCORE')) {
-        base = self$primary()
-        if (!inherits(base, 'Literal')) {
-          self$error("Expect a number, and only a number, as the logarithm base.")
-        }
-        arg = self$unary_fn_arg()
-        return(LogFun$new(base, arg))
+        expr = LogFun$new(self$log_base(), self$unary_fn_arg(operator))
+      } else {
+        expr = UnaryFun$new(operator, self$unary_fn_arg(operator))
       }
-      arg = self$unary_fn_arg()
-      return(UnaryFun$new(operator, arg))
+      if (self$implicit_multiplication()) {
+        right = self$addition()
+        return(Binary$new(expr, Token$new('STAR', '*'), right))
+      }
+      return(expr)
+    },
+
+    exp_fn = function() {
+      arg = Literal$new('1')
+      if (self$match('CARET')) {
+        if (self$match('LEFT_BRACE')) {
+          arg = self$addition()
+          self$consume('RIGHT_BRACE', "Expect '}' after expression")
+        } else {
+          arg = self$primary()
+        }
+      }
+      return(ExpFun$new(arg))
+    },
+
+    # A special case of primary()
+    log_base = function() {
+      if (self$match(c('NUMBER'))) {
+        return(Literal$new(self$previous()$literal))
+      }
+      if (self$match('PI_NUMBER')) {
+        return(Literal$new('pi'))
+      }
+      if (self$match('E_NUMBER')) {
+        return(self$exp_fn())
+      }
+      if (self$match(c('IDENTIFIER', 'GREEK_IDENTIFIER'))) {
+        return(Variable$new(self$previous()$lexeme))
+      }
+      self$parse_error("Expect number or identifier as log base.")
     },
 
     primary = function() {
       if (self$match(c('NUMBER'))) {
-        return(Literal$new(self$previous()$literal))
-      }
-
-      if (self$match('PI_NUMBER')) {
-        return(Literal$new('pi'))
-      }
-
-      if (self$match('E_NUMBER')) {
-        arg = Literal$new('1')
-        if (self$match('CARET')) {
-          if (self$match('LEFT_BRACE')) {
-            arg = self$expression()
-            self$consume('RIGHT_BRACE', "Expect '}' after expression")
-          } else {
-            arg = self$primary()
-          }
+        expr = Literal$new(self$previous()$literal)
+        if (self$implicit_multiplication()) {
+          right = self$addition()
+          return(Binary$new(expr, Token$new('STAR', '*'), right))
         }
-        return(ExpFun$new(arg))
+        return(expr)
+      }
+      if (self$match('PI_NUMBER')) {
+        expr = Literal$new('pi')
+        if (self$implicit_multiplication()) {
+          right = self$addition()
+          return(Binary$new(expr, Token$new('STAR', '*'), right))
+        }
+        return(expr)
+      }
+      if (self$match('E_NUMBER')) {
+        expr = self$exp_fn()
+        if (self$implicit_multiplication()) {
+          right = self$addition()
+          return(Binary$new(expr, Token$new('STAR', '*'), right))
+        }
+        return(expr)
       }
 
       if (self$match(c('IDENTIFIER', 'GREEK_IDENTIFIER'))) {
-        return(Variable$new(self$previous()$lexeme))
+        expr = Variable$new(self$previous()$lexeme)
+        if (self$implicit_multiplication()) {
+          right = self$addition()
+          return(Binary$new(expr, Token$new('STAR', '*'), right))
+        }
+        return(expr)
       }
 
       if (self$match('LEFT_PAREN')) {
-        expr = self$expression()
+        expr = self$addition()
         self$consume('RIGHT_PAREN', "Expect ')' after expression.")
-        return(Grouping$new(expr))
+        expr = Grouping$new(expr)
+        if (self$implicit_multiplication()) {
+          right = self$addition()
+          return(Binary$new(expr, Token$new('STAR', '*'), right))
+        }
+        return(expr)
       }
 
       if (self$match('LEFT_BRACE')) {
-        expr = self$expression()
+        expr = self$addition()
         self$consume('RIGHT_BRACE', "Expect '}' after expression.")
         return(Grouping$new(expr))
       }
@@ -228,10 +277,10 @@ Parser = R6::R6Class("Parser",
       if (self$match('FRAC')) {
         # Kind of a hack. I should use more elegant ways if possible.
         self$consume('LEFT_BRACE', "Expect '{' after FRAC.")
-        expr1 = self$expression()
+        expr1 = self$addition()
         self$consume('RIGHT_BRACE', "Expect '}' after expression")
         self$consume('LEFT_BRACE', "Expect '{' after FRAC.")
-        expr2 = self$expression()
+        expr2 = self$addition()
         self$consume('RIGHT_BRACE', "Expect '}' after expression")
 
         if (!inherits(expr1, c("Unary", "Literal", "Variable"))) {
@@ -242,7 +291,7 @@ Parser = R6::R6Class("Parser",
         }
         return(Binary$new(expr1, Token$new('FRAC', '/', NULL), expr2))
       }
-      self$error("Expect expression.")
+      self$parse_error("Expect expression.")
     }
 
   )

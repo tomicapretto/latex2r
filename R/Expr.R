@@ -102,8 +102,8 @@ Supsubscript = R6::R6Class("Supsubscript",
     sub = NULL,
     sup = NULL,
     initialize = function(left, sub, sup) {
-      if (inherits(left, 'Literal') & !is.null(sub)) {
-        stop("Literals can't have subscripts")
+      if (!(inherits(left, 'Variable') || is.null(sub))) {
+        stop("Only variable names can have subscripts")
       }
       self$left = left
       self$sub = sub
