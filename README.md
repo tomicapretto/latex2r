@@ -176,3 +176,16 @@ latex2r("\\log(x + 1)")
 latex2r("\\log_2(x + 1)")
 #> [1] "log(x + 1, base = 2)"
 ```
+
+### Examples
+
+| LaTeX                                                          | R Code                                                           |
+| :------------------------------------------------------------- | :--------------------------------------------------------------- |
+| `x + y`                                                        | `x + y`                                                          |
+| `\sin(x) + \cos(y)`                                            | `sin(x) + cos(y)`                                                |
+| `\sin(x)^2 + \cos(y)^2`                                        | `sin(x)^2 + cos(y)^2`                                            |
+| `\sqrt{2x\pi}`                                                 | `sqrt(2 * x * pi)`                                               |
+| `\log(z)`                                                      | `log(z)`                                                         |
+| `\log_a(\frac{x^5}{y})`                                        | `log((x^5) / y, base = a)`                                       |
+| `\frac{1}{\sigma\sqrt{2\pi}}e^{\frac{(x - \mu)^2}{2\sigma^2}}` | `1 / (sigma * sqrt(2 * pi)) * exp(((x - mu)^2) / (2 * sigma^2))` |
+| `\beta_1^{\frac{x+1}{x^2 \cdot y}}`                            | `beta_1^((x + 1) / (x^2 * y))`                                   |

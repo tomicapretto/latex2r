@@ -289,7 +289,12 @@ Parser = R6::R6Class("Parser",
         if (!inherits(expr2, c("Unary", "Literal", "Variable"))) {
           expr2 = Grouping$new(expr2)
         }
-        return(Binary$new(expr1, Token$new('FRAC', '/', NULL), expr2))
+        expr = Binary$new(expr1, Token$new('FRAC', '/', NULL), expr2)
+        if (self$implicit_multiplication()) {
+          right = self$addition()
+          return(Binary$new(expr, Token$new('STAR', '*'), right))
+        }
+        return(expr)
       }
       self$parse_error("Expect expression.")
     }

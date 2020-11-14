@@ -13,6 +13,7 @@ Explicit multiplication still works.
 In general the process of transforming a latex expression to a function is more robust.
 * `pi` is not detected as function argument anymore.
 * `latex2fun()` raises an error if there is an assignment within the expression.
+* Example translations in README
 
 ## Deprecation
 
