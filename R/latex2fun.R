@@ -28,9 +28,9 @@ get_args = function(expr, sort = TRUE) {
   ast = unlist(get_ast(expr))
   result = sapply(
     ast,
-    function(x) {if (is.symbol(x) && !is_function2(x)) as.character(x) else  NA}
+    function(x) if (is.symbol(x) && !is_function2(x)) as.character(x) else NA
   )
-  result = result[!is.na(result)]
+  result = setdiff(result[!is.na(result)], "pi")
   if (sort) {
     return(sort(unique(result)))
   } else {
@@ -65,6 +65,9 @@ new_function = function(args, body, envir = parent.frame()) {
 #' plot(x, f_x, type = "l")
 latex2fun = function(latex_string, envir = parent.frame()) {
   fun_body = latex2r(latex_string)
+  if (grepl("=", fun_body)) {
+    stop_custom("latex2r.error", "Expression contains assignment.")
+  }
   fun_args = get_args(fun_body)
   new_function(fun_args, fun_body, envir)
 }
