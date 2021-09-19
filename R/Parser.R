@@ -138,6 +138,12 @@ Parser = R6::R6Class("Parser",
           right = self$unary()
           expr = Binary$new(expr, operator, right)
         }
+
+        if (self$implicit_multiplication()) {
+          right = self$addition()
+          return(Binary$new(expr, Token$new('STAR', '*'), right))
+        }
+
       }
       return(expr)
     },

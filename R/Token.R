@@ -12,6 +12,29 @@ Token = R6::R6Class("Token",
     },
     to_string = function() {
       paste(self$type, self$lexeme, self$literal)
+    },
+
+    str = function() {
+      str = paste0(
+        "Token(type = ", self$type, ", lexeme = '", self$lexeme, "'"
+        )
+      if (!is.null(self$literal)) {
+        str = paste0(str, ", literal = ", self$literal, ")")
+      } else {
+        str = paste0(str, ")")
+      }
+      str
     }
   )
 )
+
+
+
+#' Print Token
+#'
+#' @export
+print.Token <- function(x) {
+  str <- x$str()
+  cat(str)
+  invisible(str)
+}

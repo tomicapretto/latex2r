@@ -1,3 +1,14 @@
+# latex2r 0.2.0
+
+## Maintenance and fixes
+
+* Fixed a bug related to implicit multiplication failing when using CARET (#2)
+* Added tests for implicit multiplication
+
+## Internal
+
+* The `Token` R6 class now has a `print.Token` S3 method. Useful for debugging.
+
 # latex2r 0.1.3
 
 ## New features
